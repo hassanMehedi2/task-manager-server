@@ -9,15 +9,15 @@ const app = express()
 
 const port = process.env.PORT || 5000;
 
-const secreckey = "hello there"
+const secretKey = process.env.ACCESS_TOKEN_SECRET ;
 
 // middleware 
 const corsOptions = {
-  origin: '*',
+  origin: 'https://task-manager-with-react.netlify.app',
   credentials: true,            //access-control-allow-credentials:true
   optionSuccessStatus: 200,
 }
-
+app.use(cors(corsOptions))
 // parser 
 app.use(express.json());
 app.use(cookieParser());
@@ -32,7 +32,7 @@ const gateman = (req, res, next) => {
     return res.status(401).send({ message: "you are not authorized" })
   }
   // verify a token symmetric
-  jwt.verify(token, secreckey, function (err, decoded) {
+  jwt.verify(token, secretKey, function (err, decoded) {
     if (err) {
       return res.status(401).send({ message: "you are not authorized" })
     }
@@ -157,13 +157,18 @@ async function run() {
     app.post('/api/auth/access-token', async (req, res) => {
       //send access token to browser
       const user = req.body;
-      const token = jwt.sign(user, secreckey, { expiresIn: 60 * 60 });
+      const token = jwt.sign(user, secretKey, { expiresIn: 60 * 60 });
       res.cookie('token', token, {
         httpOnly: true,
         secure: true,
         sameSite: 'none'
       }).send({ 'success': true })
     })
+    app.post('/logout', async (req, res) => {
+      const user = req.body;
+      console.log('logging out', user);
+      res.clearCookie('token', { maxAge: 0 }).send({ success: true })
+  })
 
 
     // Send a ping to confirm a successful connection
