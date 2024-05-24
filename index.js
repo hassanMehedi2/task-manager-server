@@ -6,7 +6,8 @@ var jwt = require('jsonwebtoken');
 
 var cookieParser = require('cookie-parser')
 const app = express()
-const port = 5000
+
+const port = process.env.PORT || 5000;
 
 const secreckey = "hello there"
 
